@@ -10,10 +10,10 @@ class Rejestracjacontroller extends Controller
         session_start();
 
         if($_POST){
-$conn = mysqli_connect('localhost', 'root', '', 'litwinbook');
+        $conn = mysqli_connect('localhost', 'root', '', 'litwinbook');
         $nazwa = htmlspecialchars($_POST['nazwa']??'');
         $email = htmlspecialchars($_POST['email']??'');
-    	$haslo =$_POST['haslo'] ?? "";
+        $haslo = $_POST['haslo'] ?? '';
         $avat = $_POST['avat'] ?? '';
 
         $spr = $conn->prepare("SELECT * FROM urzytkownicy WHERE (nazwa = ? OR email = ?)");
@@ -39,12 +39,12 @@ $conn = mysqli_connect('localhost', 'root', '', 'litwinbook');
                 $stmt1 = $conn->prepare("INSERT INTO chats(nazwa)VALUES(?)");
                 $stmt->bind_param("sss",$email, $nazwa, $haslo);
                 $stmt1->bind_param("s", $nazwa);
-                $stmt->execute();
-                $stmt1->execute();
-                header("Location: index.php");
+                if($stmt->execute() && $stmt1->execute()){
+                header("Location: /Litwinbook");
+                }
             }
         }
-            
+    
     }
     }
 }

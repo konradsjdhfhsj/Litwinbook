@@ -18,9 +18,13 @@
       };
     </script>
     @vite('resources/js/main.js')
+    @vite('resources/js/like.js')
     <link rel="shortcut icon" href="icon/favicon.ico" type="image/x-icon">
 </head>
 <body class="bg-gray-100 dark:bg-gray-800 text-gray-800 font-sans">
+
+
+</form>
 
 <?php
 session_start();
@@ -34,15 +38,16 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-/*if(!isset($_COOKIE['log'])){
-  $log = $_SESSION['nazwa'];
-  setcookie('log', $log, time() +3600, '/');
+if(!isset($_COOKIE['log'])){
+   $_SESSION['nazwa'];
+  setcookie('log',  $_SESSION['nazwa'], time() +10, '/');
   echo"dziala";
 } else {
   echo"Nie dziala";
-  //header('Locate: Litwinbook');
+  session_destroy();
+  //header('Locate: /Litwinbook');
   exit;
-}*/?>
+}?>
 <header class="bg-white dark:bg-gray-700 shadow-md sticky top-0">
   <section class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
     <h1 class="text-2xl font-bold text-violet-600">LitwinBook</h1>
@@ -55,7 +60,7 @@ $stmt->close();
         <li><a href="#" id="profile" class="hover:text-blue-500">Profil</a></li>
         <li><a href="#" id="message" class="hidden sm:block hover:text-blue-500">WiadomoĹ›ci</a></li>
         <li><a href="#" id="add-post-button" class="hover:text-blue-500">Dodaj post</a></li>
-        <li><a href="logout.php" class="text-red-500 hover:underline">Wyloguj siÄ™</a></li>
+        <li><a href="/wyloguj" class="text-red-500 hover:underline">Wyloguj siÄ™</a></li>
       </ul>
     </nav>
   </section>
@@ -144,38 +149,7 @@ $stmt->close();
     <!-- Wszystkie posty -->
     <section id="posts-container" class="bg-white p-4 rounded-xl shadow dark:bg-gray-700">
       <h4 class="text-xl font-semibold mb-4 dark:text-black">Wszystkie posty</h4>
-      <?php
-      $users = [];
-      $resultUsers = $conn->query("SELECT * FROM urzytkownicy");
-      while ($row = $resultUsers->fetch_assoc()) {
-        $users[$row['nazwa']] = $row;
-      }
-
-      // Poprawne pobieranie postów w kolejności od najnowszych
-      $resultPosts = $conn->query("SELECT * FROM post ORDER BY data DESC");
-      if ($resultPosts->num_rows > 0) {
-        while ($post = $resultPosts->fetch_assoc()) {
-          $userName = $post['imie'];
-          $avatar = isset($users[$userName]) ? $users[$userName]['avat'] : 'default-avatar.png';
-          ?>
-          <section class="post-header flex items-center gap-2 mb-2">
-            <img src="<?= htmlspecialchars($avatar) ?>" alt="Profile Image" class="w-10 h-10 rounded-full">
-            <section class="username font-semibold"><?= htmlspecialchars($userName) ?></section>
-          </section>
-          <p class="text-sm text-gray-600"><?= htmlspecialchars($post['data']) ?></p>
-          <section class="post-content mt-2">
-            <p><?= htmlspecialchars($post['post']) ?></p>
-            <?php if (!empty($post['zdj'])): ?>
-              <img src="<?= htmlspecialchars($post['zdj']) ?>" alt="Post Image" class="mt-2 rounded-lg max-w-xs">
-            <?php endif; ?>
-          </section>
-          <hr class="my-4 border-gray-200">
-          <?php
-        }
-      } else {
-        echo "<p>Brak postów do wyświetlenia.</p>";
-      }
-      ?>
+<?php require_once('post.php'); ?>
     </section>
   </section>
 
@@ -206,6 +180,43 @@ $stmt->close();
         <div class="bg-gray-100 rounded-full px-4 py-1 text-sm dark:bg-gray-800 dark:text-black">#KalenieWonia</div>
       </div>
     </section>
+    <form action="" method="post">
+  @csrf
+  <input type="text" name="osoba">
+  <input type="submit" value="Znajdz posty konkretnej osoby">
+  <?php
+  if ($_POST) {
+    $conn = mysqli_connect('localhost', 'root', '', 'litwinbook');
+
+    $osoba = $_POST['osoba'];
+    $like = "%$osoba%";
+
+    $avat = $conn->prepare('SELECT * FROM urzytkownicy WHERE nazwa LIKE ?');
+    $avat->bind_param("s", $like);
+    $avat->execute();
+    $wynikavat = $avat->get_result();
+    $avatarRow = $wynikavat->fetch_assoc(); 
+
+    $posty = $conn->prepare("SELECT * FROM post WHERE imie LIKE ? ORDER BY data DESC");
+    $posty->bind_param("s", $like);
+    $posty->execute();
+    $wynikpost = $posty->get_result();
+
+    while ($row = $wynikpost->fetch_assoc()) {
+      echo '<h1>' . htmlspecialchars($row['imie']);
+      if ($avatarRow) {
+        echo ' <img src="' . $avatarRow['avat']. '" alt="Avatar" style="width:32px;height:32px;border-radius:50%;display:inline-block;vertical-align:middle;">';
+      }
+      echo '</h1><br>';
+      echo "<h1>" . htmlspecialchars($row['post']) . "</h1><br>";
+      if (!empty($row['zdj'])) {
+        echo ' <img src="' . htmlspecialchars($row['zdj']) . '" alt="Post Image" class="mt-2 rounded-lg max-w-xs">';
+      }
+      echo "<h1>" . htmlspecialchars($row['data']) . "</h1><br>";
+    }
+  }
+  ?>
+</form>
   </aside>
 </main>
 

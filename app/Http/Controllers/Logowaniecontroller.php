@@ -10,19 +10,12 @@ class Logowaniecontroller extends Controller
        session_start();
 $conn = mysqli_connect('localhost', 'root', '', 'litwinbook');
 
-        if (!$conn) {
-            die("Connection failed: " . mysqli_connect_error());
-        }
-
         $user_login = $_POST['email'] ?? "";
         $user_password = $_POST['haslo'] ?? "";
 
         $sql = "SELECT * FROM urzytkownicy WHERE email = ? AND haslo = ?";
         $stmt = $conn->prepare($sql);
 
-        if (!$stmt) {
-            die("Statement preparation failed: " . $conn->error);
-        }
 
         $stmt->bind_param("ss", $user_login, $user_password);
         $stmt->execute();
