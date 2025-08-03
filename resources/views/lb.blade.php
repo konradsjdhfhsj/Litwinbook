@@ -38,16 +38,16 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-if(!isset($_COOKIE['log'])){
-   $_SESSION['nazwa'];
-  setcookie('log',  $_SESSION['nazwa'], time() +10, '/');
-  echo"dziala";
+$_SESSION['nazwa'] = $nazwa;
+setcookie('log', $nazwa, time() + 3600, '/');
+if (isset($_COOKIE['log'])) {
+    echo "Ciasteczko działa: " . htmlspecialchars($_COOKIE['log']);
 } else {
-  echo"Nie dziala";
-  session_destroy();
-  //header('Locate: /Litwinbook');
-  exit;
-}?>
+    echo "Ciasteczko Wygaslo. Odśwież stronę.";
+    header('Location: /Litwinbook');
+    exit;
+}
+?>
 <header class="bg-white dark:bg-gray-700 shadow-md sticky top-0">
   <section class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
     <h1 class="text-2xl font-bold text-violet-600">LitwinBook</h1>

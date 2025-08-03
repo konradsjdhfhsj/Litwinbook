@@ -13,11 +13,11 @@ $conn = mysqli_connect('localhost', 'root', '', 'litwinbook');
         $user_login = $_POST['email'] ?? "";
         $user_password = $_POST['haslo'] ?? "";
 
-        $sql = "SELECT * FROM urzytkownicy WHERE email = ? AND haslo = ?";
+        $sql = "SELECT * FROM urzytkownicy WHERE (email = ? OR nazwa = ?) AND haslo = ?";
         $stmt = $conn->prepare($sql);
 
 
-        $stmt->bind_param("ss", $user_login, $user_password);
+        $stmt->bind_param("sss", $user_login, $user_login, $user_password);
         $stmt->execute();
 
         $result = $stmt->get_result();

@@ -56,13 +56,11 @@ if ($nowanazwa !== '') {
     $types .= 's';
 }
 
-// Je�li nie ma nic do aktualizacji � zako�cz
 if (empty($fields)) {
     header("Location: lb.php");
     exit;
 }
 
-// Dodaj warunek WHERE
 $query = "UPDATE urzytkownicy SET " . implode(', ', $fields) . " WHERE nazwa = ?";
 $params[] = $staranazwa;
 $types .= 's';

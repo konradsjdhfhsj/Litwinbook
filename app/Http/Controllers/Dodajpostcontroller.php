@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use Illuminate\Http\Request;
 
 class Dodajpostcontroller extends Controller
@@ -62,5 +63,7 @@ $conn = mysqli_connect('localhost', 'root', '', 'litwinbook');
     }
 }
 
+
     }
+
 }
